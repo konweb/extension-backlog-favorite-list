@@ -5,12 +5,15 @@
 			var url = location.href,
 					url_cut = url.split("/");
 			this.p_num = url_cut[url_cut.length-1];
-
 			var check = this.storageCheck();
-			console.log(check);
 			this.viwe_icon_add(check);
-			if(!check){
-				$("#ex-BacklogFavListAdd").on("click", $.proxy(this.storageAdd, this));
+			console.log(JSON.parse(localStorage.getItem("ex-backlogFavListData")));
+			if(url.match(/view/g)){
+				if(!check){
+					$("#ex-BacklogFavListAdd").on("click", $.proxy(this.storageAdd, this));
+				}
+			}else{
+				this.listCreate();
 			}
 		},
 		viwe_icon_add: function(flag){
@@ -23,26 +26,37 @@
 			$target.append(icon);
 		},
 		storageCheck: function(){
-			var get_obj = JSON.parse(localStorage.getItem("ex-backlogFavListData")) || [],
-					flag;
+			var get_obj = JSON.parse(localStorage.getItem("ex-backlogFavListData")) || [];
 
 			for(var i = 0;i < get_obj.length;i++){
 				$("#ex-BacklogFavListAdd").attr("ex-BacklogFavListAdd", "true");
-				flag = get_obj[i].number === this.p_num ? true : false;
+				return get_obj[i].number === this.p_num ? true : false;
 			}
-			return flag;
 		},
 		storageAdd: function(){
 			console.log("storageAdd");
-			var get_obj = JSON.parse(localStorage.getItem("ex-backlogFavListData")) || [],
+			var id = $("#hello a").attr("href").split("/");
+					get_obj = JSON.parse(localStorage.getItem("ex-backlogFavListData")) || [],
 					add_obj = {
+						"id": id[id.length-1],
 						"url": location.href,
 						"title": $(".summary [data-bind='text: summary']").text(),
 						"number": this.p_num
 					};
-			getObj.push(add_obj);
+			get_obj.push(add_obj);
 			localStorage.setItem("ex-backlogFavListData", JSON.stringify(getObj));
 			console.log(JSON.parse(localStorage.getItem("ex-backlogFavListData")));
+		},
+		listCreate: function(){
+			console.log("listCreate");
+			var $list = $("#issue-menu .Tab-nav"),
+					cp_ele = $list.children().eq(1);
+			cp_ele.clone()
+				.appendTo($list)
+				.addClass("ex-backlogFavListTab")
+				.find("a")
+				.attr("id", "switch-fav-list")
+				.text("リスト");
 		}
 	}
 	backlogFavList.init();
